@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    </style>
+
+</head>
+
+<body>
+    <br>
+    <button onclick="getData()">getData</button>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <script>
+        const getData = () => {
+            var myHeaders = new Headers();
+            myHeaders.append("User-Agent", "Apifox/1.0.0 (https://apifox.com)");
+
+            var requestOptions = {
+                method: 'GET',
+                headers: myHeaders,
+                redirect: 'follow'
+            };
+
+            let data = fetch("http://127.0.0.1:4523/m1/2807812-0-default/api/v1/events/12345", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
+            console.log(data)
+            
+        }
+    </script>
+</body>
+
+</html>

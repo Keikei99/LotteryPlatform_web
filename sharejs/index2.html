@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+	</style>
+
+</head>
+
+<body>
+	<br>
+	<button onclick="connectMe()">connect</button>
+	<br>
+	<button onclick="start()">start</button>
+	<br>
+	<button onclick="join()">join</button>
+	<br>
+	<button onclick="stake()">stake</button>
+	<br>
+	<button onclick="withdraw()">withdraw</button>
+	<br>
+
+
+	<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+	<script>
+		let provider, accounts, signer
+		let eventAddress = '0xB124B86681112Bdf29a17aE91d1820F55c699Fd3'
+		let ABI = [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "have",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "want",
+						"type": "address"
+					}
+				],
+				"name": "OnlyCoordinatorCanFulfill",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "k",
+						"type": "uint256"
+					}
+				],
+				"name": "end",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "k",
+						"type": "uint256"
+					}
+				],
+				"name": "join",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "requestId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "randomWords",
+						"type": "uint256[]"
+					}
+				],
+				"name": "rawFulfillRandomWords",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "request",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "k",
+						"type": "uint256"
+					}
+				],
+				"name": "see",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "Catcoin_",
+						"type": "address"
+					}
+				],
+				"name": "setCatcoin",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "wallet_",
+						"type": "address"
+					}
+				],
+				"name": "setWallet",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "stake",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount_",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timeStart_",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timeEnd_",
+						"type": "uint256"
+					}
+				],
+				"name": "start",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "userStakeBool",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		]
+		const eventAd = new ethers.Contract(eventAddress, ABI, provider)
+		// 连接钱包
+		async function connectWallet() {
+			alert("test");
+			console.log("test");
+			provider = new ethers.providers.Web3Provider(window.ethereum);
+			accounts = await provider.send("eth_requestAccounts", [0]);
+			signer = await provider.getSigner()
+		}
+		// 发起活动
+		async function createEvent() {
+			if (!provider || !accounts || !signer) {
+				await connectWallet();
+			}
+			await eventAd.connect(signer).start(100, 1686189648, 1786189648)
+			await alert('started');
+		}
+		// 用户参与活动
+		async function joinEvent() {
+			if (!provider || !accounts || !signer) {
+				await connectWallet();
+			}
+			await eventAd.connect(signer).join(0)
+			await alert('joined');
+		}
+		// 主办方创建活动
+		async function stakeToken() {
+			if (!provider || !accounts || !signer) {
+				await connectWallet();
+			}
+			await eventAd.connect(signer).stake()
+			await alert('staked');
+		}
+		// 主办方撤回资金
+		async function withdrawToken() {
+			if (!provider || !accounts || !signer) {
+				await connectWallet();
+			}
+			await eventAd.connect(signer).withdraw()
+			await alert('withdrawed');
+		}
+		// 获取参与者
+		async function getParticipant() {
+			if (!provider || !accounts || !signer) {
+				await connectWallet();
+			}
+			await eventAd.connect(signer).see()
+		}
+
+		function testButton() {
+			alert("button clicked");
+		}
+
+	</script>
+</body>
+
+</html>
